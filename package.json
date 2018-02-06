@@ -5,6 +5,7 @@
   "main": "gulpfile.js",
   "dependencies": {
     "del": "^3.0.0",
+    "gulp-chinese2unicode": "^1.0.1",
     "gulp": "^3.9.1",
     "gulp-cssnano": "^2.1.2",
     "gulp-imagemin": "^4.1.0",
@@ -17,11 +18,7 @@
     "vinyl-paths": "^2.1.0"
   },
   "devDependencies": {
-    "fd-gulp-chinese2unicode": "0.0.1",
-    "gulp-error-handle": "^1.0.0",
-    "gulp-jsonminify": "^1.1.0",
-    "gulp-util": "^3.0.8",
-    "node-notifier": "^5.2.1"
+    "gulp-jsonminify": "^1.1.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

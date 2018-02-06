@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var strToUnicode = require('fd-gulp-chinese2unicode');
+var strToUnicode = require('gulp-chinese2unicode');
 var cssnano = require('gulp-cssnano');
 var imagemin = require('gulp-imagemin');
 var rev = require('gulp-rev');
@@ -11,28 +11,12 @@ var merge = require('merge-stream');
 var runSequence = require('run-sequence');
 var vinyl = require('vinyl-paths');
 var del = require('del');
-var errorHandler = require('gulp-error-handle');
-var notifier = require('node-notifier');
-var gutil = require('gulp-util');
-
-var logError = function(err) {
-    notifier.notify({
-        title: 'Error Occured...',
-        message: err.toString(),
-        timeout: 10
-    });
-    gutil.log(gutil.colors.red(err));
-    gutil.log(gutil.colors.red(err.stack));
-    this.emit('end');
-};
 
 gulp.task('delete', function() {
     var delFolder = gulp.src('./{css,image}')
-        .pipe(errorHandler(logError))
         .pipe(vinyl(del));
 
     var delJson = gulp.src('./channel_list_data.json')
-        .pipe(errorHandler(logError))
         .pipe(vinyl(del));
 
     return merge(delFolder, delJson);
@@ -40,57 +24,46 @@ gulp.task('delete', function() {
 
 gulp.task('moveFile', ['delete'], function() {
     return gulp.src('./src/**/*')
-        .pipe(errorHandler(logError))
         .pipe(gulp.dest('./'));
 });
 
 gulp.task('cssnano', ['moveFile'], function() {
     return gulp.src("./css/**/*.css")
-        .pipe(errorHandler(logError))
         .pipe(cssnano({
             browsers: ['last 2 versions'],
-            reduceIdents: false,
             zindex: false // 關閉z-index 設定
         }))
         .pipe(gulp.dest("./css"));
 });
 
 gulp.task('imagemin', ['moveFile'], function() {
-    return gulp.src('./image/**/*.{jpg,png,svg}')
-        .pipe(errorHandler(logError))
-        .pipe(imagemin([
-            imagemin.gifsicle({interlaced: true}), // gif無損轉換為漸進式。
-            imagemin.jpegtran({progressive: true}), // jpg無損失轉換為漸進式
-            imagemin.optipng({optimizationLevel: 5}),  // 設定png優化等級，共有0~7級
-            imagemin.svgo({
-                plugins:[
-                    {removeXMLProcInst: true}, // 刪除XML處理指令
-                    {removeEmptyAttrs: true}, // 刪除空的屬性
-                    {removeHiddenElems: true}, // 刪除隱藏的元素
-                    {removeEmptyText: true}, // 刪除空的文本元素
-                    {removeEmptyContainers: true}, // 刪除空的容器元素
-                    {removeUnusedNS: true}, // 刪除未使用的名稱空間聲明
-                    {removeUselessStrokeAndFill: true}, // 刪除無用stroke和fillattrs
-                    {cleanupIDs: true} // 刪除未使用的和縮小使用的ID
-                ]
-            })
-        ]))
-        .pipe(gulp.dest('./image'));
+    return gulp.src('./{image}/**/*.{jpg,png,svg}')
+        .pipe(imagemin({
+            svgoPlugins: [
+                { removeXMLProcInst: true }, // 刪除XML處理指令
+                { removeEmptyAttrs: true }, // 刪除空的屬性
+                { removeHiddenElems: true }, // 刪除隱藏的元素
+                { removeEmptyText: true }, // 刪除空的文本元素
+                { removeEmptyContainers: true }, // 刪除空的容器元素
+                { removeUnusedNS: true }, // 刪除未使用的名稱空間聲明
+                { removeUselessStrokeAndFill: true }, // 刪除無用stroke和fillattrs
+                { cleanupIDs: true } // 刪除未使用的和縮小使用的ID
+            ]
+        }))
+        .pipe(gulp.dest('./'));
 });
 
-gulp.task('chinese2unicode', ['moveFile'], function () {
+gulp.task('chinese2unicode2min', ['moveFile'], function () {
     return gulp.src('./channel_list_data.json')
-        .pipe(errorHandler(logError))
         .pipe(strToUnicode())
         .pipe(jsonmin())
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('rev', ['cssnano', 'imagemin', 'chinese2unicode'], function() {
+gulp.task('rev', ['cssnano', 'imagemin', 'chinese2unicode2min'], function() {
     return gulp.src(
             ["./{css,image}/**/*"], { base: "./" }
         )
-        .pipe(errorHandler(logError))
         .pipe(rev())
         .pipe(revDel())
         .pipe(gulp.dest("./"))
@@ -103,7 +76,6 @@ gulp.task('revCollectorCss', ['rev'], function() {
             "./rev-manifest.json",
             "./css/**/*.css"
         ])
-        .pipe(errorHandler(logError))
         .pipe(revCollector())
         .pipe(gulp.dest("./css"));
 });
@@ -113,7 +85,6 @@ gulp.task('revCollectorJson', ['rev'], function() {
             "./rev-manifest.json",
             "./channel_list_data.json"
         ])
-        .pipe(errorHandler(logError))
         .pipe(revCollector())
         .pipe(gulp.dest("./"));
 });
