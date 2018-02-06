@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var strToUnicode = require('fd-gulp-chinese2unicode');
 var cssnano = require('gulp-cssnano');
 var imagemin = require('gulp-imagemin');
 var rev = require('gulp-rev');
@@ -14,6 +13,8 @@ var del = require('del');
 var errorHandler = require('gulp-error-handle');
 var notifier = require('node-notifier');
 var gutil = require('gulp-util');
+var through = require('through2');
+var pre = require('preprocess');
 
 var logError = function(err) {
     notifier.notify({
@@ -24,6 +25,36 @@ var logError = function(err) {
     gutil.log(gutil.colors.red(err));
     gutil.log(gutil.colors.red(err.stack));
     this.emit('end');
+};
+
+var strToUnicode = function() {
+    var toUnicode = function(s){
+        return s.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g, function(s){
+            return '\\u' + s.charCodeAt(0).toString(16);
+        });
+    };
+
+    return through.obj(function(file, enc, cb){
+         if (file.isNull()) {
+            this.push(file);
+            return cb();
+        }
+
+        if (file.isStream()) {
+            this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Streaming not supported'));
+            return cb();
+        }
+
+        var content = pre.preprocess(file.contents.toString(), {});
+
+        content = toUnicode(content);
+
+        file.contents = new Buffer(content);
+
+        this.push(file);
+
+        cb();
+    });
 };
 
 gulp.task('delete', function() {

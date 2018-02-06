@@ -17,11 +17,12 @@
     "vinyl-paths": "^2.1.0"
   },
   "devDependencies": {
-    "fd-gulp-chinese2unicode": "0.0.1",
     "gulp-error-handle": "^1.0.0",
     "gulp-jsonminify": "^1.1.0",
     "gulp-util": "^3.0.8",
-    "node-notifier": "^5.2.1"
+    "node-notifier": "^5.2.1",
+    "preprocess": "^3.1.0",
+    "through2": "^2.0.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
