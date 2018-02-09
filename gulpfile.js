@@ -28,14 +28,14 @@ var logError = function(err) {
 };
 
 var strToUnicode = function() {
-    var toUnicode = function(s){
+    var toUnicode = function(s) {
         return s.replace(/([\u4E00-\u9FA5]|[\uFE30-\uFFA0])/g, function(s){
             return '\\u' + s.charCodeAt(0).toString(16);
         });
     };
 
-    return through.obj(function(file, enc, cb){
-         if (file.isNull()) {
+    return through.obj(function(file, enc, cb) {
+        if (file.isNull()) {
             this.push(file);
             return cb();
         }
@@ -90,26 +90,26 @@ gulp.task('imagemin', ['moveFile'], function() {
     return gulp.src('./image/**/*.{jpg,png,svg}')
         .pipe(errorHandler(logError))
         .pipe(imagemin([
-            imagemin.gifsicle({interlaced: true}), // gif無損轉換為漸進式。
-            imagemin.jpegtran({progressive: true}), // jpg無損失轉換為漸進式
-            imagemin.optipng({optimizationLevel: 5}),  // 設定png優化等級，共有0~7級
+            imagemin.gifsicle({ interlaced: true }), // gif無損轉換為漸進式。
+            imagemin.jpegtran({ progressive: true }), // jpg無損失轉換為漸進式
+            imagemin.optipng({ optimizationLevel: 5 }), // 設定png優化等級，共有0~7級
             imagemin.svgo({
-                plugins:[
-                    {removeXMLProcInst: true}, // 刪除XML處理指令
-                    {removeEmptyAttrs: true}, // 刪除空的屬性
-                    {removeHiddenElems: true}, // 刪除隱藏的元素
-                    {removeEmptyText: true}, // 刪除空的文本元素
-                    {removeEmptyContainers: true}, // 刪除空的容器元素
-                    {removeUnusedNS: true}, // 刪除未使用的名稱空間聲明
-                    {removeUselessStrokeAndFill: true}, // 刪除無用stroke和fillattrs
-                    {cleanupIDs: true} // 刪除未使用的和縮小使用的ID
+                plugins: [
+                    { removeXMLProcInst: true }, // 刪除XML處理指令
+                    { removeEmptyAttrs: true }, // 刪除空的屬性
+                    { removeHiddenElems: true }, // 刪除隱藏的元素
+                    { removeEmptyText: true }, // 刪除空的文本元素
+                    { removeEmptyContainers: true }, // 刪除空的容器元素
+                    { removeUnusedNS: true }, // 刪除未使用的名稱空間聲明
+                    { removeUselessStrokeAndFill: true }, // 刪除無用stroke和fillattrs
+                    { cleanupIDs: true } // 刪除未使用的和縮小使用的ID
                 ]
             })
         ]))
         .pipe(gulp.dest('./image'));
 });
 
-gulp.task('chinese2unicode', ['moveFile'], function () {
+gulp.task('chinese2unicode', ['moveFile'], function() {
     return gulp.src('./channel_list_data.json')
         .pipe(errorHandler(logError))
         .pipe(strToUnicode())
@@ -149,7 +149,7 @@ gulp.task('revCollectorJson', ['rev'], function() {
         .pipe(gulp.dest("./"));
 });
 
-gulp.task('watch', ['revCollectorCss','revCollectorJson'], function() {
+gulp.task('watch', ['revCollectorCss', 'revCollectorJson'], function() {
     var isRunning = false;
     var watchRunnable = null;
     var printComplete = function() {
@@ -162,7 +162,7 @@ gulp.task('watch', ['revCollectorCss','revCollectorJson'], function() {
         var run = function() {
             isRunning = true;
 
-            runSequence(["revCollectorCss",'revCollectorJson'], function() {
+            runSequence(["revCollectorCss", 'revCollectorJson'], function() {
                 isRunning = false;
                 printComplete();
             });
@@ -187,4 +187,4 @@ gulp.task('watch', ['revCollectorCss','revCollectorJson'], function() {
     });
 });
 
-gulp.task('default', ['revCollectorCss','revCollectorJson']);
+gulp.task('default', ['revCollectorCss', 'revCollectorJson']);
